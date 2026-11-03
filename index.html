@@ -2,308 +2,139 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Бизнес-Выживалити — Игровая панель управления</title>
+    <title>БИЗНЕС-ВЫЖИВАЛИТИ</title>
     <style>
-        :root {
-            --bg-dark: #121212;
-            --panel-bg: #1e1e1e;
-            --gold-primary: #d4af37;
-            --gold-dark: #aa841c;
-            --card-bg: #f9f6f0;
-            --text-dark: #2c2c2c;
-            --text-light: #ffffff;
-            --border-gold: #c5a059;
-        }
-
+        /* Сюда автоматически подключатся ваши стили, если файл со стилями лежит рядом */
         body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-light);
-            margin: 0;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        header {
+            background-color: #1a1a1a;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
             text-align: center;
-            border-bottom: 2px solid var(--gold-primary);
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-        }
-
-        header h1 {
-            font-size: 2.5em;
-            letter-spacing: 2px;
-            margin: 10px 0;
-            color: var(--gold-primary);
-            text-transform: uppercase;
-            text-shadow: 0px 2px 4px rgba(0,0,0,0.6);
-        }
-
-        .quarter-badge {
-            display: inline-block;
-            background: linear-gradient(135deg, var(--gold-primary), var(--gold-dark));
-            color: var(--bg-dark);
-            padding: 8px 20px;
-            font-weight: bold;
-            border-radius: 4px;
-            text-transform: uppercase;
-            font-size: 1.1em;
-        }
-
-        /* Две колонки: Отчетность и Рейтинг */
-        .game-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 30px;
-        }
-
-        @media (max-width: 900px) {
-            .game-grid { grid-template-columns: 1fr; }
-        }
-
-        .panel {
-            background-color: var(--panel-bg);
-            border: 1px solid #333;
-            border-radius: 8px;
             padding: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
-
-        .panel h2 {
-            color: var(--gold-primary);
-            border-bottom: 1px solid #444;
-            padding-bottom: 10px;
-            margin-top: 0;
-        }
-
-        /* Карточки секторов/компаний */
-        .company-card {
-            background-color: var(--card-bg);
-            color: var(--text-dark);
-            border-radius: 6px;
-            padding: 15px;
+        .header {
+            color: #ffcc00;
+            font-size: 24px;
+            font-weight: bold;
             margin-bottom: 20px;
-            border-left: 5px solid var(--border-gold);
         }
-
-        .company-card h3 {
-            margin: 0 0 10px 0;
-            font-size: 1.2em;
-            color: #111;
-        }
-
-        .current-stats {
-            font-size: 0.9em;
-            color: #555;
-            background: #eadecc;
-            padding: 5px 10px;
-            border-radius: 4px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .inputs-row {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-        }
-
-        .input-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .input-group label {
-            font-size: 0.8em;
-            font-weight: bold;
-            margin-bottom: 3px;
-            color: #444;
-        }
-
-        .input-group input {
-            padding: 6px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            text-align: center;
-            font-weight: bold;
-        }
-
-        /* Таблица лидеров */
-        .leaderboard-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-
-        .leaderboard-table th, .leaderboard-table td {
-            padding: 12px;
-            text-align: center;
-            border-bottom: 1px solid #444;
-        }
-
-        .leaderboard-table th {
-            background-color: #2a2a2a;
-            color: var(--gold-primary);
-        }
-
-        .leaderboard-table tr:first-child td {
-            font-weight: bold;
-            background-color: rgba(212, 175, 55, 0.1);
-        }
-
-        .rank-num {
-            font-weight: bold;
-            color: var(--gold-primary);
-        }
-
-        /* Кнопки */
-        .btn {
-            background: linear-gradient(135deg, var(--gold-primary), var(--gold-dark));
-            color: var(--bg-dark);
-            border: none;
-            padding: 12px 24px;
-            font-size: 1em;
-            font-weight: bold;
-            border-radius: 4px;
-            cursor: pointer;
-            width: 100%;
-            text-transform: uppercase;
-            transition: transform 0.1s, opacity 0.1s;
-        }
-
-        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
-        .btn:active { transform: translateY(1px); }
-
-        .btn-reset {
-            background: #333;
-            color: #aaa;
-            margin-top: 20px;
-            font-size: 0.8em;
-        }
-        .btn-reset:hover { background: #444; color: #fff; }
-
-        /* Итоги игры */
-        .final-results {
-            background: linear-gradient(135deg, #2a220c, #1a1a1a);
-            border: 2px solid var(--gold-primary);
-            text-align: center;
-            padding: 30px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-        }
-
-        .winner-box {
-            font-size: 1.5em;
-            color: var(--gold-primary);
-            margin: 20px 0;
-            padding: 15px;
-            border: 1px dashed var(--gold-primary);
-            display: inline-block;
-            background: rgba(0,0,0,0.3);
-        }
-
-        .flash-messages {
-            background-color: #2ecc71;
+        .alert-box {
+            background-color: #00cc66;
             color: white;
             padding: 10px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-            text-align: center;
-            font-weight: bold;
+            border-radius: 5px;
+            margin: 15px auto;
+            max-width: 600px;
+            display: none; /* Показывать только при наличии сообщений */
+        }
+        .results-box {
+            border: 2px solid #ffcc00;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 600px;
+            margin: 20px auto;
+        }
+        .winner {
+            border: 1px dashed #ffcc00;
+            padding: 10px;
+            font-size: 18px;
+            margin: 15px 0;
+        }
+        .sidebar {
+            background-color: #2a2a2a;
+            padding: 15px;
+            border-radius: 5px;
+            max-width: 300px;
+            margin: 20px auto;
+            text-align: left;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <header>
-        <h1>Бизнес-Выживалити</h1>
-        {% if not state.is_finished %}
-            <div class="quarter-badge">{{ state.current_quarter }}-й Квартал года</div>
-        {% else %}
-            <div class="quarter-badge" style="background: #2ecc71; color: white;">Год Завершен!</div>
-        {% endif %}
-    </header>
-
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <div class="flash-messages">
-          {% for message in messages %}{{ message }}{% endfor %}
-        </div>
-      {% endif %}
-    {% endwith %}
-
-    {# Финал игры #}
-    {% if state.is_finished %}
-    <div class="final-results">
-        <h2>🏆 ИТОГИ ФИНАНСОВОГО ГОДА 🏆</h2>
-        <p>Все 4 квартала успешно пройдены. Компании подвели финальные итоги.</p>
-        <div class="winner-box">
-            Победитель игры: <strong>{{ leaderboard[0].name }}</strong> с результатом в {{ leaderboard[0].total }} баллов!
-        </div>
-        <p>Поздравляем лидера сектора с успешным преодолением всех кризисов!</p>
+    <div class="header">
+        БИЗНЕС-ВЫЖИВАЛИТИ — <span id="game-quarter">1-Й КВАРТАЛ ГОДА</span>
     </div>
-    {% endif %}
 
-    <div class="game-grid">
-        {# Левая колонка: Форма ввода (если игра идет) #}
-        <div class="panel">
-            {% if not state.is_finished %}
-                <h2>Сдача квартальной отчетности</h2>
-                <p style="color: #aaa; font-size: 0.9em;">Укажите изменения параметров (+/-) по результатам сыгранных карт событий и кризисов в этом квартале.</p>
-                
-                <form action="/submit_quarter" method="POST">
-                    {% for key, comp in state.companies.items() %}
-                    <div class="company-card">
-                        <h3>{{ comp.name }}</h3>
-                        <div class="current-stats">
-                            <span>💰 Капитал: <strong>{{ comp.capital }}</strong></span>
-                            <span>⚡ Мощность: <strong>{{ comp.power }}</strong></span>
-                            <span>👥 Репутация: <strong>{{ comp.reputation }}</strong></span>
-                        </div>
-                        <div class="inputs-row">
-                            <div class="input-group">
-                                <label>Изменение Капитала</label>
-                                <input type="number" name="{{ key }}_d_cap" value="0" min="-10" max="10">
-                            </div>
-                            <div class="input-group">
-                                <label>Изменение Мощности</label>
-                                <input type="number" name="{{ key }}_d_pow" value="0" min="-10" max="10">
-                            </div>
-                            <div class="input-group">
-                                <label>Изменение Репутации</label>
-                                <input type="number" name="{{ key }}_d_rep" value="0" min="-10" max="10">
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                    <button type="submit" class="btn">Принять отчетность и рассчитать рейтинг</button>
-                </form>
-            {% else %}
-                <h2>История изменений за год</h2>
-                <div style="color: #ccc; max-height: 400px; overflow-y: auto;">
-                    {% for step in state.history %}
-                        <p><strong>Квартал {{ step.quarter }}:</strong> Данные успешно внесены и обработаны системой.</p>
-                    {% endfor %}
-                </div>
-            {% endif %}
+    <!-- Блок уведомлений (всплывающие сообщения) -->
+    <div id="alert-message" class="alert-box">
+        Приветствуем участников игры!
+    </div>
+
+    <div class="results-box">
+        <h3>🏆 ИТОГИ ФИНАНСОВОГО ГОДА 🏆</h3>
+        <p>Все 4 квартала успешно пройдены. Компании подвели финальные итоги.</p>
+        
+        <div class="winner">
+            Победитель игры: <strong id="winner-name">Имя команды</strong> с результатом в <strong id="winner-score">0</strong> баллов!
         </div>
+        
+        <p style="color: #aaaaaa;">Поздравляем лидера сектора с успешным преодолением всех кризисов!</p>
+    </div>
 
-        {# Правая колонка: Текущий Рейтинг #}
-        <div class="panel">
-            <h2>Текущий рейтинг лидеров</h2>
-            <p style="color: #aaa; font-size: 0.85em;">Сортировка производится по сумме трех показателей бизнеса.</p>
+    <!-- Правая/Нижняя колонка управления отчетностью -->
+    <div class="sidebar">
+        <h4 style="color: #ffcc00; margin-top: 0;" id="report-title">Сдача квартальной отчетности</h4>
+        <p style="font-size: 13px; color: #ccc;">Укажите изменения параметров (+/-) по результатам сыгранных карт событий и кризисов в этом квартале.</p>
+        
+        <div id="companies-list">
+            <!-- Сюда JavaScript будет добавлять компании -->
+        </div>
+    </div>
+
+    <!-- ЛОГИКА ИГРЫ НА JAVASCRIPT -->
+    <script>
+        // Данные игры (в будущем их можно динамически менять)
+        const gameState = {
+            isFinished: false,
+            currentQuarter: 1,
+            messages: ["Игра началась! Заполните отчетность за первый квартал."],
+            leaderboard: [
+                { name: "Альфа-Корп", total: 150 },
+                { name: "Бета-Индастриз", total: 120 }
+            ],
+            companies: ["ООО Вектор", "АО Техно", "НПП Прогресс"]
+        };
+
+        // Функция инициализации интерфейса данными
+        function updateUI() {
+            // 1. Квартал или завершение
+            const quarterElement = document.getElementById('game-quarter');
+            if (gameState.isFinished) {
+                quarterElement.textContent = "ГОД ЗАВЕРШЕН!";
+                quarterElement.style.color = "#00cc66";
+                document.getElementById('report-title').textContent = "Игра окончена";
+            } else {
+                quarterElement.textContent = `${gameState.currentQuarter}-Й КВАРТАЛ ГОДА`;
+            }
+
+            // 2. Вывод сообщения
+            const alertBox = document.getElementById('alert-message');
+            if (gameState.messages.length > 0) {
+                alertBox.textContent = gameState.messages[0];
+                alertBox.style.display = 'block';
+            }
+
+            // 3. Вывод победителя
+            if (gameState.leaderboard.length > 0) {
+                document.getElementById('winner-name').textContent = gameState.leaderboard[0].name;
+                document.getElementById('winner-score').textContent = gameState.leaderboard[0].total;
+            }
+
+            // 4. Список компаний для формы ввода
+            const listContainer = document.getElementById('companies-list');
+            listContainer.innerHTML = ''; // Очищаем старый список
             
-            <table class="leaderboard-table">
-                <thead>
-                    <tr>
-                        <th>№</th>
-                        <th>Компания</th>
-                        <th>Сумма</th>
+            gameState.companies.forEach(company => {
+                const div = document.createElement('div');
+                div.style.margin = '8px 0';
+                div.innerHTML = `<strong>${company}</strong>: <input type="number" placeholder="Баллы" style="width: 60px; margin-left: 10px;">`;
+                listContainer.appendChild(div);
+            });
+        }
+
+        // Запускаем обновление при загрузке страницы
+        updateUI();
+    </script>
+</body>
+</html>
