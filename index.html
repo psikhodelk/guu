@@ -379,126 +379,170 @@
     <!-- Нижнее меню навигации -->
     <div class="bottom-nav">
         <div class="nav-item" onclick="alert('Вы на главной странице')">
-📅
-Главная
+        ">
+            <span class="nav-icon">📅</span>
+            <span>Главная</span>
+        </div>
+        <div class="nav-item active">
+            <span class="nav-icon">🔸</span>
+            <span>Текущая игра</span>
+        </div>
+    </div>
 
+    <!-- ЛОГИКА ИГРЫ НА JAVASCRIPT -->
+    <script>
+        // Список компаний из макета
+        const companiesData = [
+            { id: 0, name: 'IT-стартап „НейроКод“' },
+            { id: 1, name: 'Сеть кофеин „Cup & GO“' },
+            { id: 2, name: 'Бренд одежды „Aura“' },
+            { id: 3, name: 'Логистическая компания „Магистраль“' },
+            { id: 4, name: 'Завод эко-упаковки „ГринПак“' },
+            { id: 5, name: 'Платформа онлайн-обучения „СкиллМастер“' }
+        ];
 
-🔸
-Текущая игра
+        // Состояние игры
+        let currentQuarter = 1;
 
-// Первоначальный список компаний из макета
-const companiesData = [
-{ id: 0, name: 'IT-стартап „НейроКод“' },
-{ id: 1, name: 'Сеть кофеин „Cup & GO“' },
-{ id: 2, name: 'Бренд одежды „Aura“' },
-{ id: 3, name: 'Логистическая компания „Магистраль“' },
-{ id: 4, name: 'Завод эко-упаковки „ГринПак“' },
-{ id: 5, name: 'Платформа онлайн-обучения „СкиллМастер“' }
-];
-// Состояние игры
-let currentQuarter = 1;
-// Хранилище набранных баллов: { companyId: общая_сумма_баллов }
-const scores = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-// Какие компании уже заполнили данные в ТЕКУЩЕМ квартале
-let filledInCurrentQuarter = new Set();
-// Отрисовка списка компаний
-function renderCompanies() {
-const container = document.getElementById('companies-container');
-container.innerHTML = '';
-companiesData.forEach(company => {
-const isDone = filledInCurrentQuarter.has(company.id);
-const card = document.createElement('div');
-card.className = 'company-card';
-card.innerHTML = `
+        // Хранилище набранных баллов: { companyId: общая_сумма_баллов }
+        const scores = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
 
-${company.name}
+        // Какие компании уже заполнили данные в ТЕКУЩЕМ квартале
+        let filledInCurrentQuarter = new Set();
 
+        // Отрисовка списка компаний
+        function renderCompanies() {
+            const container = document.getElementById('companies-container');
+            container.innerHTML = '';
 
-${isDone ? 'Готово ✓' : 'Внести данные'}
+            companiesData.forEach(company => {
+                const isDone = filledInCurrentQuarter.has(company.id);
+                
+                const card = document.createElement('div');
+                card.className = 'company-card';
+                card.innerHTML = `
+                    <div class="company-main">
+                        <div class="company-name">${company.name}</div>
+                        <div class="company-actions">
+                            <span class="status-text ${isDone ? 'done' : ''}" id="status-${company.id}">
+                                ${isDone ? 'Готово ✓' : 'Внести данные'}
+                            </span>
+                            <button class="btn-plus" id="btn-plus-${company.id}" onclick="togglePanel(${company.id})">+</button>
+                        </div>
+                    </div>
+                    
+                    <div class="indicators-panel" id="panel-${company.id}">
+                        <div class="input-group">
+                            <label>Капитал</label>
+                            <input type="number" id="cap-${company.id}" placeholder="0" min="0">
+                        </div>
+                        <div class="input-group">
+                            <label>Мощность</label>
+                            <input type="number" id="pow-${company.id}" placeholder="0" min="0">
+                        </div>
+                        <div class="input-group">
+                            <label>Репутация</label>
+                            <input type="number" id="rep-${company.id}" placeholder="0" min="0">
+                        </div>
+                        <button class="btn-save-inputs" onclick="saveIndicators(${company.id})">Сохранить показатели</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
 
-+
+        // Открытие/закрытие панели показателей при клике на плюс
+        function togglePanel(id) {
+            const panel = document.getElementById(`panel-${id}`);
+            const btn = document.getElementById(`btn-plus-${id}`);
+            
+            panel.classList.toggle('active');
+            btn.classList.toggle('open');
+        }
 
-Капитал
-Мощность
-Репутация
-Сохранить показатели
+        // Сохранение введенных параметров для конкретной компании
+        function saveIndicators(id) {
+            const cap = parseInt(document.getElementById(`cap-${id}`).value) || 0;
+            const pow = parseInt(document.getElementById(`pow-${id}`).value) || 0;
+            const rep = parseInt(document.getElementById(`rep-${id}`).value) || 0;
 
-`;
-container.appendChild(card);
-});
-}
-// Открытие/закрытие панели показателей при клике на плюс
-function togglePanel(id) {
-const panel = document.getElementById(panel-${id});
-const btn = document.getElementById(btn-plus-${id});
-panel.classList.toggle('active');
-btn.classList.toggle('open');
-}
-// Сохранение введенных параметров для конкретной компании
-function saveIndicators(id) {
-const cap = parseInt(document.getElementById(cap-${id}).value) || 0;
-const pow = parseInt(document.getElementById(pow-${id}).value) || 0;
-const rep = parseInt(document.getElementById(rep-${id}).value) || 0;
-// Суммируем баллы в общую копилку компании
-const quarterTotal = cap + pow + rep;
-scores[id] += quarterTotal;
-// Помечаем компанию как сдавшую отчёт в этом квартале
-filledInCurrentQuarter.add(id);
-// Закрываем панельку и обновляем интерфейс карточки
-togglePanel(id);
-const statusText = document.getElementById(status-${id});
-statusText.textContent = 'Готово ✓';
-statusText.classList.add('done');
-}
-// Логика переключения кварталов и завершения игры
-function submitQuarter() {
-if (filledInCurrentQuarter.size < 6) {
-alert('Пожалуйста, внесите показатели для всех 6 секторов перед переходом!');
-return;
-}
-if (currentQuarter < 4) {
-// Переходим на следующий квартал
-currentQuarter++;
-filledInCurrentQuarter.clear(); // Сбрасываем флаги готовности для нового кварталя
-// Обновляем тексты на экране
-document.getElementById('quarter-text').textContent = Квартал ${currentQuarter};
-const actionBtn = document.getElementById('action-btn');
-if (currentQuarter === 4) {
-actionBtn.textContent = 'Подвести итоги';
-} else {
-actionBtn.textContent = Подтвердить квартал ${currentQuarter};
-}
-renderCompanies();
-window.scrollTo(0, 0);
-} else {
-// Если был 4-й квартал — завершаем игру и выводим рейтинг
-showFinalLeaderboard();
-}
-}
-// Построение рейтинговой таблицы
-function showFinalLeaderboard() {
-// Скрываем игровой интерфейс
-document.getElementById('game-panel').style.display = 'none';
-// Показываем экран результатов
-const resultsScreen = document.getElementById('results-screen');
-resultsScreen.style.display = 'block';
-// Сортируем компании по убыванию баллов
-const sortedLeaderboard = companiesData.map(c => ({
-name: c.name,
-totalScore: scores[c.id]
-})).sort((a, b) => b.totalScore - a.totalScore);
-// Заполняем таблицу на экране
-const tbody = document.getElementById('leaderboard-body');
-tbody.innerHTML = '';
-sortedLeaderboard.forEach((item, index) => {
-const row = document.createElement('tr');
-row.innerHTML = `
-#${index + 1}
-${item.name}
-${item.totalScore}
-`;
-tbody.appendChild(row);
-});
-}
-// Запуск приложения при загрузке
-renderCompanies();
+            // Суммируем баллы в общую копилку компании
+            const quarterTotal = cap + pow + rep;
+            scores[id] += quarterTotal;
+
+            // Помечаем компанию как сдавшую отчёт в этом квартале
+            filledInCurrentQuarter.add(id);
+
+            // Закрываем панельку и обновляем интерфейс карточки
+            togglePanel(id);
+            
+            const statusText = document.getElementById(`status-${id}`);
+            statusText.textContent = 'Готово ✓';
+            statusText.classList.add('done');
+        }
+
+        // Логика переключения кварталов и завершения игры
+        function submitQuarter() {
+            if (filledInCurrentQuarter.size < 6) {
+                alert('Пожалуйста, внесите показатели для всех 6 секторов перед переходом!');
+                return;
+            }
+
+            if (currentQuarter < 4) {
+                // Переходим на следующий квартал
+                currentQuarter++;
+                filledInCurrentQuarter.clear(); // Сбрасываем флаги готовности для нового квартала
+
+                // Обновляем тексты на экране
+                document.getElementById('quarter-text').textContent = `Квартал ${currentQuarter}`;
+                
+                const actionBtn = document.getElementById('action-btn');
+                if (currentQuarter === 4) {
+                    actionBtn.textContent = 'Подвести итоги';
+                } else {
+                    actionBtn.textContent = `Подтвердить квартал ${currentQuarter}`;
+                }
+
+                renderCompanies();
+                window.scrollTo(0, 0);
+            } else {
+                // Если был 4-й квартал — завершаем игру и выводим рейтинг
+                showFinalLeaderboard();
+            }
+        }
+
+        // Построение рейтинговой таблицы
+        function showFinalLeaderboard() {
+            // Скрываем игровой интерфейс
+            document.getElementById('game-panel').style.display = 'none';
+            
+            // Показываем экран результатов
+            const resultsScreen = document.getElementById('results-screen');
+            resultsScreen.style.display = 'block';
+
+            // Сортируем компании по убыванию баллов
+            const sortedLeaderboard = companiesData.map(c => ({
+                name: c.name,
+                totalScore: scores[c.id]
+            })).sort((a, b) => b.totalScore - a.totalScore);
+
+            // Заполняем таблицу на экране
+            const tbody = document.getElementById('leaderboard-body');
+            tbody.innerHTML = '';
+
+            sortedLeaderboard.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="rank-num">#${index + 1}</td>
+                    <td>${item.name}</td>
+                    <td class="score-val">${item.totalScore}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Запуск приложения при загрузке
+        renderCompanies();
+    </script>
+</body>
+</html>
