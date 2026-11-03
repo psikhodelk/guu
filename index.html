@@ -2,139 +2,503 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>БИЗНЕС-ВЫЖИВАЛИТИ</title>
     <style>
-        /* Сюда автоматически подключатся ваши стили, если файл со стилями лежит рядом */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
         body {
-            background-color: #1a1a1a;
+            background-color: #000000;
             color: #ffffff;
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px 15px 120px 15px;
         }
+
+        /* Шапка */
         .header {
-            color: #ffcc00;
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 20px;
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            margin-bottom: 25px;
+            padding: 0 5px;
         }
-        .alert-box {
-            background-color: #00cc66;
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 15px auto;
-            max-width: 600px;
-            display: none; /* Показывать только при наличии сообщений */
+
+        .btn-month {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            padding: 10px 18px;
+            border-radius: 20px;
+            font-size: 15px;
+            cursor: pointer;
         }
-        .results-box {
-            border: 2px solid #ffcc00;
-            padding: 20px;
-            border-radius: 10px;
-            max-width: 600px;
-            margin: 20px auto;
-        }
-        .winner {
-            border: 1px dashed #ffcc00;
-            padding: 10px;
+
+        .title {
             font-size: 18px;
-            margin: 15px 0;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
         }
-        .sidebar {
-            background-color: #2a2a2a;
-            padding: 15px;
-            border-radius: 5px;
-            max-width: 300px;
-            margin: 20px auto;
+
+        .btn-menu {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+        }
+
+        .btn-menu span {
+            width: 18px;
+            height: 2px;
+            background-color: #ffffff;
+            border-radius: 1px;
+        }
+
+        /* Индикатор квартала */
+        .quarter-indicator {
+            width: 100%;
+            max-width: 500px;
+            text-align: right;
+            color: #ff5c5c;
+            font-size: 15px;
+            margin-bottom: 15px;
+            padding-right: 5px;
+            font-weight: 500;
+        }
+
+        .quarter-indicator::before {
+            content: "• ";
+            font-size: 18px;
+        }
+
+        /* Список секторов/компаний */
+        .companies-list {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            background-color: #111111;
+        }
+
+        .company-card {
+            background-color: #121212;
+            padding: 18px 12px;
+            display: flex;
+            flex-direction: column;
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        .company-main {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .company-name {
+            font-size: 15px;
+            font-weight: 400;
+            color: #e0e0e0;
+            max-width: 70%;
+        }
+
+        .company-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .status-text {
+            font-size: 13px;
+            color: #888888;
+        }
+
+        .status-text.done {
+            color: #00cc66;
+            font-weight: bold;
+        }
+
+        .btn-plus {
+            background: rgba(255, 255, 255, 0.08);
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            color: #ff9f43;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .btn-plus.open {
+            transform: rotate(45deg);
+            color: #ff5c5c;
+        }
+
+        /* Выпадающая панель показателей */
+        .indicators-panel {
+            display: none;
+            margin-top: 15px;
+            padding: 12px;
+            background-color: #181818;
+            border-radius: 8px;
+            border: 1px solid #252525;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .indicators-panel.active {
+            display: flex;
+        }
+
+        .input-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .input-group label {
+            font-size: 14px;
+            color: #aaa;
+        }
+
+        .input-group input {
+            background-color: #222;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 6px;
+            width: 90px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #ff9f43;
+        }
+
+        .btn-save-inputs {
+            background-color: #ff9f43;
+            color: #000;
+            border: none;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        /* Кнопка отправки квартала */
+        .btn-action-container {
+            width: 100%;
+            max-width: 500px;
+            margin-top: 25px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .btn-submit-quarter {
+            background: linear-gradient(135deg, #ff9f43, #ff5c5c);
+            color: #ffffff;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 25px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 90%;
+            box-shadow: 0 4px 15px rgba(255, 159, 67, 0.2);
+        }
+
+        /* Экран итогов */
+        .results-screen {
+            display: none;
+            width: 100%;
+            max-width: 500px;
+            background-color: #121212;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #222;
+            margin-top: 10px;
+        }
+
+        .results-title {
+            text-align: center;
+            color: #ff9f43;
+            font-size: 20px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .rating-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .rating-table th {
             text-align: left;
+            color: #888;
+            font-size: 13px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #222;
+        }
+
+        .rating-table td {
+            padding: 14px 0;
+            border-bottom: 1px solid #1a1a1a;
+            font-size: 15px;
+        }
+
+        .rank-num {
+            font-weight: bold;
+            color: #ff5c5c;
+            width: 30px;
+        }
+
+        .score-val {
+            text-align: right;
+            font-weight: 600;
+            color: #00cc66;
+        }
+
+        /* Нижнее меню */
+        .bottom-nav {
+            position: fixed;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 400px;
+            background-color: rgba(20, 20, 20, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 35px;
+            display: flex;
+            padding: 6px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 100;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            color: #888888;
+            text-decoration: none;
+            font-size: 12px;
+            padding: 10px 0;
+            border-radius: 30px;
+            cursor: pointer;
+        }
+
+        .nav-item.active {
+            background-color: #121212;
+            color: #ff9f43;
+        }
+
+        .nav-icon {
+            font-size: 18px;
         }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        БИЗНЕС-ВЫЖИВАЛИТИ — <span id="game-quarter">1-Й КВАРТАЛ ГОДА</span>
-    </div>
-
-    <!-- Блок уведомлений (всплывающие сообщения) -->
-    <div id="alert-message" class="alert-box">
-        Приветствуем участников игры!
-    </div>
-
-    <div class="results-box">
-        <h3>🏆 ИТОГИ ФИНАНСОВОГО ГОДА 🏆</h3>
-        <p>Все 4 квартала успешно пройдены. Компании подвели финальные итоги.</p>
+    <!-- Главная панель игры -->
+    <div id="game-panel" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
         
-        <div class="winner">
-            Победитель игры: <strong id="winner-name">Имя команды</strong> с результатом в <strong id="winner-score">0</strong> баллов!
+        <!-- Шапка -->
+        <div class="header">
+            <button class="btn-month">Нояб.</button>
+            <div class="title">БИЗНЕС-ВЫЖИВАЛИТИ</div>
+            <button class="btn-menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </div>
-        
-        <p style="color: #aaaaaa;">Поздравляем лидера сектора с успешным преодолением всех кризисов!</p>
-    </div>
 
-    <!-- Правая/Нижняя колонка управления отчетностью -->
-    <div class="sidebar">
-        <h4 style="color: #ffcc00; margin-top: 0;" id="report-title">Сдача квартальной отчетности</h4>
-        <p style="font-size: 13px; color: #ccc;">Укажите изменения параметров (+/-) по результатам сыгранных карт событий и кризисов в этом квартале.</p>
-        
-        <div id="companies-list">
-            <!-- Сюда JavaScript будет добавлять компании -->
+        <!-- Текущий квартал -->
+        <div class="quarter-indicator" id="quarter-text">Квартал 1</div>
+
+        <!-- Список секторов -->
+        <div class="companies-list" id="companies-container">
+            <!-- Сюда JS вставит карточки компаний -->
+        </div>
+
+        <!-- Кнопка действия -->
+        <div class="btn-action-container">
+            <button class="btn-submit-quarter" id="action-btn" onclick="submitQuarter()">Подтвердить квартал 1</button>
         </div>
     </div>
 
-    <!-- ЛОГИКА ИГРЫ НА JAVASCRIPT -->
-    <script>
-        // Данные игры (в будущем их можно динамически менять)
-        const gameState = {
-            isFinished: false,
-            currentQuarter: 1,
-            messages: ["Игра началась! Заполните отчетность за первый квартал."],
-            leaderboard: [
-                { name: "Альфа-Корп", total: 150 },
-                { name: "Бета-Индастриз", total: 120 }
-            ],
-            companies: ["ООО Вектор", "АО Техно", "НПП Прогресс"]
-        };
+    <!-- Экран финальных результатов -->
+    <div class="results-screen" id="results-screen">
+        <div class="results-title">🏆 ИТОГОВЫЙ РЕЙТИНГ КОМАНД 🏆</div>
+        <table class="rating-table">
+            <thead>
+                <tr>
+                    <th>МЕСТО</th>
+                    <th>КОМАНДА / СЕКТОР</th>
+                    <th style="text-align: right;">ОБЩИЙ БАЛЛ</th>
+                </tr>
+            </thead>
+            <tbody id="leaderboard-body">
+                <!-- Сюда JS вставит результаты -->
+            </tbody>
+        </table>
+    </div>
 
-        // Функция инициализации интерфейса данными
-        function updateUI() {
-            // 1. Квартал или завершение
-            const quarterElement = document.getElementById('game-quarter');
-            if (gameState.isFinished) {
-                quarterElement.textContent = "ГОД ЗАВЕРШЕН!";
-                quarterElement.style.color = "#00cc66";
-                document.getElementById('report-title').textContent = "Игра окончена";
-            } else {
-                quarterElement.textContent = `${gameState.currentQuarter}-Й КВАРТАЛ ГОДА`;
-            }
+    <!-- Нижнее меню навигации -->
+    <div class="bottom-nav">
+        <div class="nav-item" onclick="alert('Вы на главной странице')">
+📅
+Главная
 
-            // 2. Вывод сообщения
-            const alertBox = document.getElementById('alert-message');
-            if (gameState.messages.length > 0) {
-                alertBox.textContent = gameState.messages[0];
-                alertBox.style.display = 'block';
-            }
 
-            // 3. Вывод победителя
-            if (gameState.leaderboard.length > 0) {
-                document.getElementById('winner-name').textContent = gameState.leaderboard[0].name;
-                document.getElementById('winner-score').textContent = gameState.leaderboard[0].total;
-            }
+🔸
+Текущая игра
 
-            // 4. Список компаний для формы ввода
-            const listContainer = document.getElementById('companies-list');
-            listContainer.innerHTML = ''; // Очищаем старый список
-            
-            gameState.companies.forEach(company => {
-                const div = document.createElement('div');
-                div.style.margin = '8px 0';
-                div.innerHTML = `<strong>${company}</strong>: <input type="number" placeholder="Баллы" style="width: 60px; margin-left: 10px;">`;
-                listContainer.appendChild(div);
-            });
-        }
+// Первоначальный список компаний из макета
+const companiesData = [
+{ id: 0, name: 'IT-стартап „НейроКод“' },
+{ id: 1, name: 'Сеть кофеин „Cup & GO“' },
+{ id: 2, name: 'Бренд одежды „Aura“' },
+{ id: 3, name: 'Логистическая компания „Магистраль“' },
+{ id: 4, name: 'Завод эко-упаковки „ГринПак“' },
+{ id: 5, name: 'Платформа онлайн-обучения „СкиллМастер“' }
+];
+// Состояние игры
+let currentQuarter = 1;
+// Хранилище набранных баллов: { companyId: общая_сумма_баллов }
+const scores = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+// Какие компании уже заполнили данные в ТЕКУЩЕМ квартале
+let filledInCurrentQuarter = new Set();
+// Отрисовка списка компаний
+function renderCompanies() {
+const container = document.getElementById('companies-container');
+container.innerHTML = '';
+companiesData.forEach(company => {
+const isDone = filledInCurrentQuarter.has(company.id);
+const card = document.createElement('div');
+card.className = 'company-card';
+card.innerHTML = `
 
-        // Запускаем обновление при загрузке страницы
-        updateUI();
-    </script>
-</body>
-</html>
+${company.name}
+
+
+${isDone ? 'Готово ✓' : 'Внести данные'}
+
++
+
+Капитал
+Мощность
+Репутация
+Сохранить показатели
+
+`;
+container.appendChild(card);
+});
+}
+// Открытие/закрытие панели показателей при клике на плюс
+function togglePanel(id) {
+const panel = document.getElementById(panel-${id});
+const btn = document.getElementById(btn-plus-${id});
+panel.classList.toggle('active');
+btn.classList.toggle('open');
+}
+// Сохранение введенных параметров для конкретной компании
+function saveIndicators(id) {
+const cap = parseInt(document.getElementById(cap-${id}).value) || 0;
+const pow = parseInt(document.getElementById(pow-${id}).value) || 0;
+const rep = parseInt(document.getElementById(rep-${id}).value) || 0;
+// Суммируем баллы в общую копилку компании
+const quarterTotal = cap + pow + rep;
+scores[id] += quarterTotal;
+// Помечаем компанию как сдавшую отчёт в этом квартале
+filledInCurrentQuarter.add(id);
+// Закрываем панельку и обновляем интерфейс карточки
+togglePanel(id);
+const statusText = document.getElementById(status-${id});
+statusText.textContent = 'Готово ✓';
+statusText.classList.add('done');
+}
+// Логика переключения кварталов и завершения игры
+function submitQuarter() {
+if (filledInCurrentQuarter.size < 6) {
+alert('Пожалуйста, внесите показатели для всех 6 секторов перед переходом!');
+return;
+}
+if (currentQuarter < 4) {
+// Переходим на следующий квартал
+currentQuarter++;
+filledInCurrentQuarter.clear(); // Сбрасываем флаги готовности для нового кварталя
+// Обновляем тексты на экране
+document.getElementById('quarter-text').textContent = Квартал ${currentQuarter};
+const actionBtn = document.getElementById('action-btn');
+if (currentQuarter === 4) {
+actionBtn.textContent = 'Подвести итоги';
+} else {
+actionBtn.textContent = Подтвердить квартал ${currentQuarter};
+}
+renderCompanies();
+window.scrollTo(0, 0);
+} else {
+// Если был 4-й квартал — завершаем игру и выводим рейтинг
+showFinalLeaderboard();
+}
+}
+// Построение рейтинговой таблицы
+function showFinalLeaderboard() {
+// Скрываем игровой интерфейс
+document.getElementById('game-panel').style.display = 'none';
+// Показываем экран результатов
+const resultsScreen = document.getElementById('results-screen');
+resultsScreen.style.display = 'block';
+// Сортируем компании по убыванию баллов
+const sortedLeaderboard = companiesData.map(c => ({
+name: c.name,
+totalScore: scores[c.id]
+})).sort((a, b) => b.totalScore - a.totalScore);
+// Заполняем таблицу на экране
+const tbody = document.getElementById('leaderboard-body');
+tbody.innerHTML = '';
+sortedLeaderboard.forEach((item, index) => {
+const row = document.createElement('tr');
+row.innerHTML = `
+#${index + 1}
+${item.name}
+${item.totalScore}
+`;
+tbody.appendChild(row);
+});
+}
+// Запуск приложения при загрузке
+renderCompanies();
