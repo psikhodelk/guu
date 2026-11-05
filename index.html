@@ -50,23 +50,6 @@
         }
         .btn-menu {
             display: none !important;
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            gap: 4px;
-            cursor: pointer;
-        }
-        .btn-menu span {
-            width: 18px;
-            height: 2px;
-            background-color: #ffffff;
-            border-radius: 1px;
         }
         .quarter-indicator {
             width: 100%;
@@ -225,7 +208,7 @@
             text-align: center;
             color: #ff9f43;
             font-size: 20px;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             font-weight: 600;
         }
         .rating-table {
@@ -236,23 +219,40 @@
             text-align: left;
             color: #888;
             font-size: 13px;
-            padding-bottom: 10px;
+            padding-bottom: 12px;
             border-bottom: 1px solid #222;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         .rating-table td {
-            padding: 14px 0;
+            padding: 16px 0;
             border-bottom: 1px solid #1a1a1a;
             font-size: 15px;
+            vertical-align: middle;
+        }
+        .rank-medal {
+            font-size: 20px;
+            display: inline-block;
+            width: 35px;
+            text-align: center;
         }
         .rank-num {
             font-weight: bold;
             color: #ff5c5c;
-            width: 30px;
+            display: inline-block;
+            width: 35px;
+            text-align: center;
+        }
+        .quarter-history {
+            font-size: 12px;
+            color: #888888;
+            margin-top: 4px;
         }
         .score-val {
             text-align: right;
             font-weight: 600;
             color: #00cc66;
+            font-size: 16px;
         }
         .bottom-nav {
             position: fixed;
@@ -310,11 +310,7 @@
         <div class="header">
             <button class="btn-month" id="current-date"></button>
             <div class="title">БИЗНЕС-ВЫЖИВАЛИТИ</div>
-            <button class="btn-menu">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
+            <div style="width: 80px;"></div>
         </div>
         <div class="quarter-indicator" id="quarter-text">Квартал 1</div>
         <div class="companies-list" id="companies-container"></div>
@@ -322,15 +318,14 @@
             <button class="btn-submit-quarter" id="action-btn" onclick="submitQuarter()">Подтвердить квартал 1</button>
         </div>
     </div>
-
     <div class="results-screen" id="results-screen">
         <div class="results-title">🏆 ИТОГОВЫЙ РЕЙТИНГ КОМАНД 🏆</div>
         <table class="rating-table">
             <thead>
                 <tr>
-                    <th>МЕСТО</th>
+                    <th style="width: 50px;">МЕСТО</th>
                     <th>КОМАНДА / СЕКТОР</th>
-                    <th style="text-align: right;">ОБЩИЙ БАЛЛ</th>
+                    <th style="text-align: right; white-space: nowrap;">СУММА БАЛЛОВ</th>
                 </tr>
             </thead>
             <tbody id="leaderboard-body"></tbody>
@@ -357,14 +352,22 @@
             { id: 4, name: 'Завод эко-упаковки „ГринПак“' },
             { id: 5, name: 'Платформа онлайн-обучения „СкиллМастер“' }
         ];
+
         let currentQuarter = 1;
-        const scores = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+
+        let scoresHistory = {
+            1: { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+            2: { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+            3: { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+            4: { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+        };
+
         let filledInCurrentQuarter = new Set();
 
         function saveToStorage() {
             localStorage.setItem('business_game_scores', JSON.stringify({
                 currentQuarter: currentQuarter,
-                scores: scores,
+                scoresHistory: scoresHistory,
                 filled: Array.from(filledInCurrentQuarter)
             }));
         }
@@ -410,8 +413,8 @@
         }
 
         function togglePanel(id) {
-            const panel = document.getElementById(`panel-${id}`);
-            const btn = document.getElementById(`btn-plus-${id}`);
+            const panel = document.getElementById('panel-' + id);
+            const btn = document.getElementById('btn-plus-' + id);
             if (panel && btn) {
                 panel.classList.toggle('active');
                 btn.classList.toggle('open');
@@ -419,15 +422,16 @@
         }
 
         function saveIndicators(id) {
-            const cap = parseInt(document.getElementById(`cap-${id}`).value) || 0;
-            const pow = parseInt(document.getElementById(`pow-${id}`).value) || 0;
-            const rep = parseInt(document.getElementById(`rep-${id}`).value) || 0;
+            const cap = parseInt(document.getElementById('cap-' + id).value) || 0;
+            const pow = parseInt(document.getElementById('pow-' + id).value) || 0;
+            const rep = parseInt(document.getElementById('rep-' + id).value) || 0;
             const quarterTotal = cap + pow + rep;
-            scores[id] += quarterTotal;
+
+            scoresHistory[currentQuarter][id] = quarterTotal;
             filledInCurrentQuarter.add(id);
             togglePanel(id);
             
-            const statusText = document.getElementById(`status-${id}`);
+            const statusText = document.getElementById('status-' + id);
             if (statusText) {
                 statusText.textContent = 'Готово ✓';
                 statusText.classList.add('done');
@@ -440,23 +444,22 @@
             if (savedData) {
                 const parsed = JSON.parse(savedData);
                 currentQuarter = parsed.currentQuarter;
-                for (let key in parsed.scores) { scores[key] = parsed.scores[key]; }
+                scoresHistory = parsed.scoresHistory;
                 filledInCurrentQuarter = new Set(parsed.filled);
                 
-                document.getElementById('quarter-text').textContent = `Квартал ${currentQuarter}`;
-                document.getElementById('lobby-quarter-text').textContent = `Квартал ${currentQuarter}`;
+                document.getElementById('quarter-text').textContent = 'Квартал ' + currentQuarter;
+                document.getElementById('lobby-quarter-text').textContent = 'Квартал ' + currentQuarter;
                 
                 const actionBtn = document.getElementById('action-btn');
                 if (currentQuarter === 4) {
                     actionBtn.textContent = 'Подвести итоги';
                 } else {
-                    actionBtn.textContent = `Подтвердить квартал ${currentQuarter}`;
+                    actionBtn.textContent = 'Подтвердить квартал ' + currentQuarter;
                 }
             }
 
             renderCompanies();
             document.getElementById('current-date').textContent = new Date().toLocaleDateString('ru-RU', {day: 'numeric', month: 'short'});
-            
             showScreen('lobby');
         });
 
@@ -468,14 +471,14 @@
             if (currentQuarter < 4) {
                 currentQuarter++;
                 filledInCurrentQuarter.clear(); 
-                document.getElementById('quarter-text').textContent = `Квартал ${currentQuarter}`;
-                document.getElementById('lobby-quarter-text').textContent = `Квартал ${currentQuarter}`;
+                document.getElementById('quarter-text').textContent = 'Квартал ' + currentQuarter;
+                document.getElementById('lobby-quarter-text').textContent = 'Квартал ' + currentQuarter;
                 
                 const actionBtn = document.getElementById('action-btn');
                 if (currentQuarter === 4) {
                     actionBtn.textContent = 'Подвести итоги';
                 } else {
-                    actionBtn.textContent = `Подтвердить квартал ${currentQuarter}`;
+                    actionBtn.textContent = 'Подтвердить квартал ' + currentQuarter;
                 }
                 renderCompanies();
                 saveToStorage();
@@ -489,21 +492,39 @@
             document.getElementById('game-panel').style.display = 'none';
             const resultsScreen = document.getElementById('results-screen');
             resultsScreen.style.display = 'block';
+
             const sortedLeaderboard = companiesData.map(c => ({
                 name: c.name,
-                totalScore: scores[c.id]
-            })).sort((a, b) => b.totalScore - a.totalScore);
+                q1: scoresHistory[1][c.id] || 0,
+                q2: scoresHistory[2][c.id] || 0,
+                q3: scoresHistory[3][c.id] || 0,
+                q4: scoresHistory[4][c.id] || 0
+            })).sort((a, b) => b.q4 - a.q4);
+
             const tbody = document.getElementById('leaderboard-body');
             tbody.innerHTML = '';
+
             sortedLeaderboard.forEach((item, index) => {
+                const place = index + 1;
+                let badge = '';
+
+                if (place === 1) badge = '<span class="rank-medal">🥇</span>';
+                else if (place === 2) badge = '<span class="rank-medal">🥈</span>';
+                else if (place === 3) badge = '<span class="rank-medal">🥉</span>';
+                else badge = '<span class="rank-num">#' + place + '</span>';
+
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td class="rank-num">#${index + 1}</td>
-                    <td>${item.name}</td>
-                    <td class="score-val">${item.totalScore}</td>
+                    <td>${badge}</td>
+                    <td>
+                        <div style="font-weight: 500;">${item.name}</div>
+                        <div class="quarter-history">Кв1: ${item.q1} | Кв2: ${item.q2} | Кв3: ${item.q3}</div>
+                    </td>
+                    <td class="score-val">${item.q4}</td>
                 `;
                 tbody.appendChild(row);
             });
+
             localStorage.removeItem('business_game_scores');
         }
 
@@ -515,7 +536,7 @@
             }
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             
-            if(screenId === 'lobby') {
+                 if(screenId === 'lobby') {
                 document.getElementById('lobby-panel').style.display = 'block';
                 document.querySelector('.nav-item:nth-child(1)').classList.add('active');
             } else {
@@ -528,7 +549,13 @@
             localStorage.removeItem('business_game_scores');
             currentQuarter = 1;
             filledInCurrentQuarter.clear();
-            for (let id in scores) { scores[id] = 0; }
+
+            for (let q in scoresHistory) {
+                for (let id in scoresHistory[q]) {
+                    scoresHistory[q][id] = 0;
+                }
+            }
+
             document.getElementById('quarter-text').textContent = 'Квартал 1';
             document.getElementById('lobby-quarter-text').textContent = 'Квартал 1';
             document.getElementById('action-btn').textContent = 'Подтвердить квартал 1';
