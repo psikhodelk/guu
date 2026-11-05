@@ -297,15 +297,16 @@
     </style>
 </head>
 <body>
-    <div id="lobby-panel" style="max-width: 500px; padding: 20px; width: 100%; display: none;">
+    <div id="lobby-panel" style="max-width: 500px; padding: 20px; width: 100%; display: block;">
         <h2 style="text-align: center; margin-bottom: 20px; color: #ff9f43;">Мои игры</h2>
-        <div style="background: #121212; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #222;">
+        <div onclick="showScreen('game')" style="background: #121212; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #222; cursor: pointer;">
             <div style="font-weight: bold;">Бизнес-Выживалити #1</div>
-            <div style="color: #888; font-size: 13px; margin-top: 5px;">Статус: В процессе (Квартал 1)</div>
+            <div style="color: #888; font-size: 13px; margin-top: 5px;">Статус: В процессе (<span id="lobby-quarter-text">Квартал 1</span>)</div>
         </div>
         <button style="background: #ff9f43; color: #000; border: none; padding: 15px; border-radius: 25px; width: 100%; font-weight: bold; cursor: pointer;" onclick="startNewGame()">Начать новую игру</button>
     </div>
-    <div id="game-panel" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+
+    <div id="game-panel" style="width: 100%; display: none; flex-direction: column; align-items: center;">
         <div class="header">
             <button class="btn-month" id="current-date"></button>
             <div class="title">БИЗНЕС-ВЫЖИВАЛИТИ</div>
@@ -321,6 +322,7 @@
             <button class="btn-submit-quarter" id="action-btn" onclick="submitQuarter()">Подтвердить квартал 1</button>
         </div>
     </div>
+
     <div class="results-screen" id="results-screen">
         <div class="results-title">🏆 ИТОГОВЫЙ РЕЙТИНГ КОМАНД 🏆</div>
         <table class="rating-table">
@@ -331,23 +333,22 @@
                     <th style="text-align: right;">ОБЩИЙ БАЛЛ</th>
                 </tr>
             </thead>
-            <tbody id="leaderboard-body">
-            </tbody>
+            <tbody id="leaderboard-body"></tbody>
         </table>
     </div>
 
     <div class="bottom-nav">
-        <div class="nav-item" onclick="showScreen('lobby')">
+        <div class="nav-item active" onclick="showScreen('lobby')">
             <span class="nav-icon">📜</span>
             <span>Главная</span>
         </div>
-        <div class="nav-item active" onclick="showScreen('game')">
+        <div class="nav-item" onclick="showScreen('game')">
             <span class="nav-icon">⚔️</span>
             <span>Текущая игра</span>
         </div>
     </div>
 
-       <script>
+    <script>
         const companiesData = [
             { id: 0, name: 'IT-стартап „НейроКод“' },
             { id: 1, name: 'Сеть кофеин „Cup & GO“' },
@@ -431,7 +432,7 @@
                 statusText.textContent = 'Готово ✓';
                 statusText.classList.add('done');
             }
-            saveToStorage(); 
+            saveToStorage();
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -443,6 +444,8 @@
                 filledInCurrentQuarter = new Set(parsed.filled);
                 
                 document.getElementById('quarter-text').textContent = `Квартал ${currentQuarter}`;
+                document.getElementById('lobby-quarter-text').textContent = `Квартал ${currentQuarter}`;
+                
                 const actionBtn = document.getElementById('action-btn');
                 if (currentQuarter === 4) {
                     actionBtn.textContent = 'Подвести итоги';
@@ -453,6 +456,8 @@
 
             renderCompanies();
             document.getElementById('current-date').textContent = new Date().toLocaleDateString('ru-RU', {day: 'numeric', month: 'short'});
+            
+            showScreen('lobby');
         });
 
         function submitQuarter() {
@@ -464,6 +469,7 @@
                 currentQuarter++;
                 filledInCurrentQuarter.clear(); 
                 document.getElementById('quarter-text').textContent = `Квартал ${currentQuarter}`;
+                document.getElementById('lobby-quarter-text').textContent = `Квартал ${currentQuarter}`;
                 
                 const actionBtn = document.getElementById('action-btn');
                 if (currentQuarter === 4) {
@@ -524,6 +530,7 @@
             filledInCurrentQuarter.clear();
             for (let id in scores) { scores[id] = 0; }
             document.getElementById('quarter-text').textContent = 'Квартал 1';
+            document.getElementById('lobby-quarter-text').textContent = 'Квартал 1';
             document.getElementById('action-btn').textContent = 'Подтвердить квартал 1';
             renderCompanies();
             showScreen('game');
