@@ -141,6 +141,22 @@
         .indicators-panel.active {
             display: flex;
         }
+        .indicators-history-box {
+            background-color: #222222;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-bottom: 4px;
+            font-size: 12px;
+            color: #ff9f43;
+            border: 1px dashed #333;
+        }
+        .history-title {
+            font-weight: bold;
+            margin-bottom: 6px;
+            color: #888888;
+            font-size: 11px;
+            text-transform: uppercase;
+        }
         .input-group {
             display: flex;
             justify-content: space-between;
@@ -243,11 +259,6 @@
             width: 35px;
             text-align: center;
         }
-        .quarter-history {
-            font-size: 12px;
-            color: #888888;
-            margin-top: 4px;
-        }
         .score-val {
             text-align: right;
             font-weight: 600;
@@ -318,13 +329,14 @@
             <button class="btn-submit-quarter" id="action-btn" onclick="submitQuarter()">Подтвердить квартал 1</button>
         </div>
     </div>
+
     <div class="results-screen" id="results-screen">
-        <div class="results-title">🏆 ИТОГОВЫЙ РЕЙТИНГ КОМАНД 🏆</div>
+        <div class="results-title">🏆 ИТОГИ 🏆</div>
         <table class="rating-table">
             <thead>
                 <tr>
-                    <th style="width: 50px;">МЕСТО</th>
-                    <th>КОМАНДА / СЕКТОР</th>
+                    <th style="width: 60px;"></th>
+                    <th>НАЗВАНИЕ КОМАНДЫ</th>
                     <th style="text-align: right; white-space: nowrap;">СУММА БАЛЛОВ</th>
                 </tr>
             </thead>
@@ -342,7 +354,6 @@
             <span>Текущая игра</span>
         </div>
     </div>
-
     <script>
         const companiesData = [
             { id: 0, name: 'IT-стартап „НейроКод“' },
@@ -354,18 +365,23 @@
         ];
 
         let currentQuarter = 1;
-
-        let scoresHistory = {
-            1: { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
-            2: { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
-            3: { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
-            4: { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
-        };
-
         let filledInCurrentQuarter = new Set();
 
+        let scoresHistory = {
+            1: {}, 2: {}, 3: {}, 4: {}
+        };
+
+        function initScoresStructure() {
+            for (let q = 1; q <= 4; q++) {
+                for (let id = 0; id <= 5; id++) {
+                    scoresHistory[q][id] = { cap: 0, pow: 0, rep: 0, total: 0 };
+                }
+            }
+        }
+        initScoresStructure();
+
         function saveToStorage() {
-            localStorage.setItem('business_game_scores', JSON.stringify({
+            localStorage.setItem('business_game_scores_v3', JSON.stringify({
                 currentQuarter: currentQuarter,
                 scoresHistory: scoresHistory,
                 filled: Array.from(filledInCurrentQuarter)
@@ -376,8 +392,20 @@
             const container = document.getElementById('companies-container');
             if (!container) return;
             container.innerHTML = '';
+
             companiesData.forEach(company => {
                 const isDone = filledInCurrentQuarter.has(company.id);
+
+                let historyHTML = '';
+                if (currentQuarter > 1) {
+                    historyHTML += '<div class="indicators-history-box">';
+                    historyHTML += '<div class="history-title">Ранее внесено:</div>';
+                    for (let q = 1; q < currentQuarter; q++) {
+                        const hist = scoresHistory[q][company.id] || { cap: 0, pow: 0, rep: 0 };
+                        historyHTML += `<div style="margin-bottom: 2px;"><strong>Кв ${q}:</strong> Капитал: ${hist.cap} | Мощность: ${hist.pow} | Репутация: ${hist.rep}</div>`;
+                    }
+                    historyHTML += '</div>';
+                }
                 
                 const card = document.createElement('div');
                 card.className = 'company-card';
@@ -393,6 +421,7 @@
                     </div>
                     
                     <div class="indicators-panel" id="panel-${company.id}">
+                        ${historyHTML}
                         <div class="input-group">
                             <label>Капитал</label>
                             <input type="number" id="cap-${company.id}" placeholder="0" min="0">
@@ -425,9 +454,14 @@
             const cap = parseInt(document.getElementById('cap-' + id).value) || 0;
             const pow = parseInt(document.getElementById('pow-' + id).value) || 0;
             const rep = parseInt(document.getElementById('rep-' + id).value) || 0;
-            const quarterTotal = cap + pow + rep;
 
-            scoresHistory[currentQuarter][id] = quarterTotal;
+            scoresHistory[currentQuarter][id] = {
+                cap: cap,
+                pow: pow,
+                rep: rep,
+                total: cap + pow + rep
+            };
+
             filledInCurrentQuarter.add(id);
             togglePanel(id);
             
@@ -440,7 +474,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            const savedData = localStorage.getItem('business_game_scores');
+            const savedData = localStorage.getItem('business_game_scores_v3');
             if (savedData) {
                 const parsed = JSON.parse(savedData);
                 currentQuarter = parsed.currentQuarter;
@@ -465,7 +499,7 @@
 
         function submitQuarter() {
             if (filledInCurrentQuarter.size < 6) {
-                alert('Пожалуйста, внесите показатели для всех 6 секторов перед переходом!');
+                alert('Пожалуйста, внесите показатели для всех секторов перед переходом!');
                 return;
             }
             if (currentQuarter < 4) {
@@ -493,13 +527,13 @@
             const resultsScreen = document.getElementById('results-screen');
             resultsScreen.style.display = 'block';
 
-            const sortedLeaderboard = companiesData.map(c => ({
-                name: c.name,
-                q1: scoresHistory[1][c.id] || 0,
-                q2: scoresHistory[2][c.id] || 0,
-                q3: scoresHistory[3][c.id] || 0,
-                q4: scoresHistory[4][c.id] || 0
-            })).sort((a, b) => b.q4 - a.q4);
+            const sortedLeaderboard = companiesData.map(c => {
+                const q4Data = scoresHistory[4][c.id] || { total: 0 };
+                return {
+                    name: c.name,
+                    q4Total: q4Data.total
+                };
+            }).sort((a, b) => b.q4Total - a.q4Total);
 
             const tbody = document.getElementById('leaderboard-body');
             tbody.innerHTML = '';
@@ -516,16 +550,13 @@
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${badge}</td>
-                    <td>
-                        <div style="font-weight: 500;">${item.name}</div>
-                        <div class="quarter-history">Кв1: ${item.q1} | Кв2: ${item.q2} | Кв3: ${item.q3}</div>
-                    </td>
-                    <td class="score-val">${item.q4}</td>
+                    <td><div style="font-weight: 500; color: #e0e0e0;">${item.name}</div></td>
+                    <td class="score-val">${item.q4Total}</td>
                 `;
                 tbody.appendChild(row);
             });
 
-            localStorage.removeItem('business_game_scores');
+            localStorage.removeItem('business_game_scores_v3');
         }
 
         function showScreen(screenId) {
@@ -536,9 +567,11 @@
             }
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             
-                 if(screenId === 'lobby') {
+            if(screenId === 'lobby') {
                 document.getElementById('lobby-panel').style.display = 'block';
                 document.querySelector('.nav-item:nth-child(1)').classList.add('active');
+            } else {
+                document.getElementById('game-panel').style.display = 'flex';
             } else {
                 document.getElementById('game-panel').style.display = 'flex';
                 document.querySelector('.nav-item:nth-child(2)').classList.add('active');
@@ -546,15 +579,10 @@
         }
 
         function startNewGame() {
-            localStorage.removeItem('business_game_scores');
+            localStorage.removeItem('business_game_scores_v3');
             currentQuarter = 1;
             filledInCurrentQuarter.clear();
-
-            for (let q in scoresHistory) {
-                for (let id in scoresHistory[q]) {
-                    scoresHistory[q][id] = 0;
-                }
-            }
+            initScoresStructure();
 
             document.getElementById('quarter-text').textContent = 'Квартал 1';
             document.getElementById('lobby-quarter-text').textContent = 'Квартал 1';
