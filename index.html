@@ -48,9 +48,6 @@
             text-transform: uppercase;
             text-align: center;
         }
-        .btn-menu {
-            display: none !important;
-        }
         .quarter-indicator {
             width: 100%;
             max-width: 500px;
@@ -308,6 +305,7 @@
     </style>
 </head>
 <body>
+
     <div id="lobby-panel" style="max-width: 500px; padding: 20px; width: 100%; display: block;">
         <h2 style="text-align: center; margin-bottom: 20px; color: #ff9f43;">Мои игры</h2>
         <div onclick="showScreen('game')" style="background: #121212; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #222; cursor: pointer;">
@@ -355,6 +353,7 @@
         </div>
     </div>
     <script>
+
         const companiesData = [
             { id: 0, name: 'IT-стартап „НейроКод“' },
             { id: 1, name: 'Сеть кофеин „Cup & GO“' },
@@ -380,14 +379,22 @@
         }
         initScoresStructure();
 
-        function saveToStorage() {
-            localStorage.setItem('business_game_scores_v3', JSON.stringify({
-                currentQuarter: currentQuarter,
-                scoresHistory: scoresHistory,
-                filled: Array.from(filledInCurrentQuarter)
-            }));
+        function showScreen(screenId) {
+            document.getElementById('game-panel').style.display = 'none';
+            document.getElementById('lobby-panel').style.display = 'none';
+            if (document.getElementById('results-screen')) {
+                document.getElementById('results-screen').style.display = 'none';
+            }
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            
+            if (screenId === 'lobby') {
+                document.getElementById('lobby-panel').style.display = 'block';
+                document.querySelector('.nav-item:nth-child(1)').classList.add('active');
+            } else {
+                document.getElementById('game-panel').style.display = 'flex';
+                document.querySelector('.nav-item:nth-child(2)').classList.add('active');
+            }
         }
-
         function renderCompanies() {
             const container = document.getElementById('companies-container');
             if (!container) return;
@@ -449,6 +456,13 @@
                 btn.classList.toggle('open');
             }
         }
+        function saveToStorage() {
+            localStorage.setItem('business_game_scores_v3', JSON.stringify({
+                currentQuarter: currentQuarter,
+                scoresHistory: scoresHistory,
+                filled: Array.from(filledInCurrentQuarter)
+            }));
+        }
 
         function saveIndicators(id) {
             const cap = parseInt(document.getElementById('cap-' + id).value) || 0;
@@ -473,33 +487,9 @@
             saveToStorage();
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const savedData = localStorage.getItem('business_game_scores_v3');
-            if (savedData) {
-                const parsed = JSON.parse(savedData);
-                currentQuarter = parsed.currentQuarter;
-                scoresHistory = parsed.scoresHistory;
-                filledInCurrentQuarter = new Set(parsed.filled);
-                
-                document.getElementById('quarter-text').textContent = 'Квартал ' + currentQuarter;
-                document.getElementById('lobby-quarter-text').textContent = 'Квартал ' + currentQuarter;
-                
-                const actionBtn = document.getElementById('action-btn');
-                if (currentQuarter === 4) {
-                    actionBtn.textContent = 'Подвести итоги';
-                } else {
-                    actionBtn.textContent = 'Подтвердить квартал ' + currentQuarter;
-                }
-            }
-
-            renderCompanies();
-            document.getElementById('current-date').textContent = new Date().toLocaleDateString('ru-RU', {day: 'numeric', month: 'short'});
-            showScreen('lobby');
-        });
-
         function submitQuarter() {
             if (filledInCurrentQuarter.size < 6) {
-                alert('Пожалуйста, внесите показатели для всех секторов перед переходом!');
+                alert('Пожалуйста, внесите показатели для всех 6 секторов перед переходом!');
                 return;
             }
             if (currentQuarter < 4) {
@@ -521,7 +511,6 @@
                 showFinalLeaderboard();
             }
         }
-
         function showFinalLeaderboard() {
             document.getElementById('game-panel').style.display = 'none';
             const resultsScreen = document.getElementById('results-screen');
@@ -559,25 +548,6 @@
             localStorage.removeItem('business_game_scores_v3');
         }
 
-        function showScreen(screenId) {
-            document.getElementById('game-panel').style.display = 'none';
-            document.getElementById('lobby-panel').style.display = 'none';
-            if (document.getElementById('results-screen')) {
-                document.getElementById('results-screen').style.display = 'none';
-            }
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            
-            if(screenId === 'lobby') {
-                document.getElementById('lobby-panel').style.display = 'block';
-                document.querySelector('.nav-item:nth-child(1)').classList.add('active');
-            } else {
-                document.getElementById('game-panel').style.display = 'flex';
-            } else {
-                document.getElementById('game-panel').style.display = 'flex';
-                document.querySelector('.nav-item:nth-child(2)').classList.add('active');
-            }
-        }
-
         function startNewGame() {
             localStorage.removeItem('business_game_scores_v3');
             currentQuarter = 1;
@@ -587,9 +557,36 @@
             document.getElementById('quarter-text').textContent = 'Квартал 1';
             document.getElementById('lobby-quarter-text').textContent = 'Квартал 1';
             document.getElementById('action-btn').textContent = 'Подтвердить квартал 1';
+            
             renderCompanies();
             showScreen('game');
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedData = localStorage.getItem('business_game_scores_v3');
+            if (savedData) {
+                const parsed = JSON.parse(savedData);
+                currentQuarter = parsed.currentQuarter;
+                scoresHistory = parsed.scoresHistory;
+                filledInCurrentQuarter = new Set(parsed.filled);
+                
+                document.getElementById('quarter-text').textContent = 'Квартал ' + currentQuarter;
+                document.getElementById('lobby-quarter-text').textContent = 'Квартал ' + currentQuarter;
+                
+                const actionBtn = document.getElementById('action-btn');
+                if (currentQuarter === 4) {
+                    actionBtn.textContent = 'Подвести итоги';
+                } else {
+                    actionBtn.textContent = 'Подтвердить квартал ' + currentQuarter;
+                }
+            }
+
+            renderCompanies();
+
+            document.getElementById('current-date').textContent = new Date().toLocaleDateString('ru-RU', {day: 'numeric', month: 'short'});
+
+            showScreen('lobby');
+        });
     </script>
 </body>
 </html>
