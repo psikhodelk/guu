@@ -347,7 +347,7 @@
         </div>
     </div>
 
-    <script>
+       <script>
         const companiesData = [
             { id: 0, name: 'IT-стартап „НейроКод“' },
             { id: 1, name: 'Сеть кофеин „Cup & GO“' },
@@ -359,6 +359,14 @@
         let currentQuarter = 1;
         const scores = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
         let filledInCurrentQuarter = new Set();
+
+        function saveToStorage() {
+            localStorage.setItem('business_game_scores', JSON.stringify({
+                currentQuarter: currentQuarter,
+                scores: scores,
+                filled: Array.from(filledInCurrentQuarter)
+            }));
+        }
 
         function renderCompanies() {
             const container = document.getElementById('companies-container');
@@ -423,16 +431,33 @@
                 statusText.textContent = 'Готово ✓';
                 statusText.classList.add('done');
             }
+            saveToStorage(); 
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            const savedData = localStorage.getItem('business_game_scores');
+            if (savedData) {
+                const parsed = JSON.parse(savedData);
+                currentQuarter = parsed.currentQuarter;
+                for (let key in parsed.scores) { scores[key] = parsed.scores[key]; }
+                filledInCurrentQuarter = new Set(parsed.filled);
+                
+                document.getElementById('quarter-text').textContent = `Квартал ${currentQuarter}`;
+                const actionBtn = document.getElementById('action-btn');
+                if (currentQuarter === 4) {
+                    actionBtn.textContent = 'Подвести итоги';
+                } else {
+                    actionBtn.textContent = `Подтвердить квартал ${currentQuarter}`;
+                }
+            }
+
             renderCompanies();
             document.getElementById('current-date').textContent = new Date().toLocaleDateString('ru-RU', {day: 'numeric', month: 'short'});
         });
 
         function submitQuarter() {
             if (filledInCurrentQuarter.size < 6) {
-                alert('Пожалуйста, внесите показатели для всех секторов перед переходом!');
+                alert('Пожалуйста, внесите показатели для всех 6 секторов перед переходом!');
                 return;
             }
             if (currentQuarter < 4) {
@@ -447,6 +472,7 @@
                     actionBtn.textContent = `Подтвердить квартал ${currentQuarter}`;
                 }
                 renderCompanies();
+                saveToStorage();
                 window.scrollTo(0, 0);
             } else {
                 showFinalLeaderboard();
@@ -472,6 +498,7 @@
                 `;
                 tbody.appendChild(row);
             });
+            localStorage.removeItem('business_game_scores');
         }
 
         function showScreen(screenId) {
@@ -492,6 +519,7 @@
         }
 
         function startNewGame() {
+            localStorage.removeItem('business_game_scores');
             currentQuarter = 1;
             filledInCurrentQuarter.clear();
             for (let id in scores) { scores[id] = 0; }
