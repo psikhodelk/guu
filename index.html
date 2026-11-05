@@ -380,11 +380,11 @@
     </div>
 
     <div class="bottom-nav">
-        <div class="nav-item" onclick="showScreen('lobby')">
+        <div class="nav-item" onclick="showScreen('lobby')"
             <span class="nav-icon">📅</span>
             <span>Главная</span>
         </div>
-        <div class="nav-item active">
+        <div class="nav-item active" onclick="showScreen('game')">
             <span class="nav-icon">🔸</span>
             <span>Текущая игра</span>
         </div>
@@ -532,6 +532,15 @@
     if (document.getElementById('results-screen')) {
         document.getElementById('results-screen').style.display = 'none';
     }
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    
+    if(screenId === 'lobby') {
+        document.getElementById('lobby-panel').style.display = 'block';
+        document.querySelector('.nav-item:nth-child(1)').classList.add('active');
+    } else {
+        document.getElementById('game-panel').style.display = 'flex';
+        document.querySelector('.nav-item:nth-child(2)').classList.add('active');
+    }
     function startNewGame() {
     currentQuarter = 1;
     filledInCurrentQuarter.clear();
@@ -543,19 +552,9 @@
     renderCompanies();
     showScreen('game');
 }
-
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    
-    if(screenId === 'lobby') {
-        document.getElementById('lobby-panel').style.display = 'block';
-        document.querySelector('.nav-item:nth-child(1)').classList.add('active');
-    } else {
-        document.getElementById('game-panel').style.display = 'flex';
-        document.querySelector('.nav-item:nth-child(2)').classList.add('active');
-    }
-}
         renderCompanies();
         document.getElementById('current-date').textContent = new Date().toLocaleDateString('ru-RU', {day: 'numeric', month: 'short'});
+        }
     </script>
 </body>
 </html>
